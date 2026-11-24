@@ -113,7 +113,11 @@ jobs:
 
   dependency-review:
     name: dependency-review
-    if: github.event_name == 'pull_request'
+    # The action refuses private repositories without GitHub Code Security
+    # or Advanced Security, and a personal account cannot enable either.
+    # The job runs whenever this repository is public; the weekly
+    # supply-chain job keeps the advisory gate either way.
+    if: github.event_name == 'pull_request' && github.repository_visibility == 'public'
     runs-on: ubuntu-24.04
     permissions:
       contents: read

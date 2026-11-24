@@ -1,0 +1,52 @@
+[package]
+name = "siemens-home-connect-exporter"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.100"
+license = "MIT"
+description = "Prometheus exporter for Siemens and Bosch Home Connect appliances"
+repository = "https://github.com/Yornik/Siemens-home-connect-exporter"
+keywords = ["prometheus", "exporter", "home-connect", "siemens", "bosch"]
+
+[lib]
+name = "siemens_home_connect_exporter"
+
+[[bin]]
+name = "hce"
+path = "src/main.rs"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+indexing_slicing = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+print_stdout = "deny"
+print_stderr = "deny"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+result_large_err = "allow"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = "symbols"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio"] }
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+prometheus-client = "0.26"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "time"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", default-features = false, features = ["ansi", "env-filter", "fmt", "std"] }

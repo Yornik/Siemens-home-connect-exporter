@@ -1,0 +1,5 @@
+# Clippy reads this file for lint configuration.
+# unwrap/expect stay allowed inside tests: a panic there fails the test,
+# which is the intended outcome for a broken fixture.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
