@@ -39,7 +39,10 @@ LABEL org.opencontainers.image.title="hce" \
 COPY --from=build /build/target/release/hce /hce
 # reqwest uses rustls with compiled-in webpki root certificates, so the image
 # needs no CA bundle file.
+# No ENV for HCE_LISTEN_ADDR: the exporter mode defaults to 0.0.0.0:9780 in
+# the code, and an image default would leak into the authorize mode, where it
+# would override the 127.0.0.1:7878 redirect listener and break the registered
+# redirect URI (measured the hard way: a 403 on the authorize page).
 USER 65532:65532
-ENV HCE_LISTEN_ADDR=0.0.0.0:9780
 EXPOSE 9780
 ENTRYPOINT ["/hce"]
