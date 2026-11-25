@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/Yornik/Siemens-home-connect-exporter/compare/v0.2.0...v0.3.0) (2026-11-25)
+
+
+### Features
+
+* show the authorize command and redirect URI ([285c7b8](https://github.com/Yornik/Siemens-home-connect-exporter/commit/285c7b8ae5179d60b47225df47ead52eb2c95dd6))
+* show the authorize command and redirect URI ([3491553](https://github.com/Yornik/Siemens-home-connect-exporter/commit/3491553e09349f6ad566798c8b805e44e8e735d1))
+
 ## [0.2.0](https://github.com/Yornik/Siemens-home-connect-exporter/compare/v0.1.0...v0.2.0) (2026-11-25)
 
 
