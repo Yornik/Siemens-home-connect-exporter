@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/Yornik/Siemens-home-connect-exporter/compare/v0.3.0...v0.3.1) (2026-11-25)
+
+
+### Bug Fixes
+
+* stop the image listen address leaking into authorize ([90db58a](https://github.com/Yornik/Siemens-home-connect-exporter/commit/90db58a88c8c0e25ef1b08cc1251e34d098d5af9))
+* stop the image listen address leaking into authorize ([6e6bb06](https://github.com/Yornik/Siemens-home-connect-exporter/commit/6e6bb06e4f32a20b3d50f56747fd3567159f435a))
+
 ## [0.3.0](https://github.com/Yornik/Siemens-home-connect-exporter/compare/v0.2.0...v0.3.0) (2026-11-25)
 
 
