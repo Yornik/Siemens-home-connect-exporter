@@ -1,8 +1,33 @@
 # Siemens Home Connect exporter
 
-`hce` is a Prometheus exporter for Siemens and Bosch home appliances that
-speak Home Connect. It keeps one Server-Sent Events stream open per
-appliance and serves the appliance state on `/metrics`.
+`hce` exports the state of Siemens and Bosch home appliances to Prometheus.
+
+[![CI](https://github.com/Yornik/Siemens-home-connect-exporter/actions/workflows/ci.yml/badge.svg)](https://github.com/Yornik/Siemens-home-connect-exporter/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Yornik/Siemens-home-connect-exporter?sort=semver&display_name=tag)](https://github.com/Yornik/Siemens-home-connect-exporter/releases)
+[![License: MIT](https://img.shields.io/github/license/Yornik/Siemens-home-connect-exporter)](LICENSE)
+[![Rust](https://img.shields.io/badge/Rust-1.100-orange?logo=rust)](https://www.rust-lang.org/)
+[![Image](https://img.shields.io/badge/image-ghcr.io%2Fyornik%2Fsiemens--home--connect--exporter-2496ED?logo=docker)](https://github.com/Yornik/Siemens-home-connect-exporter/pkgs/container/siemens-home-connect-exporter)
+[![cosign signed](https://img.shields.io/badge/cosign-signed-blueviolet?logo=linuxfoundation)](docs/verifying-releases.md)
+[![Renovate](https://img.shields.io/badge/renovate-enabled-1A8FEE?logo=renovatebot)](.github/renovate.json)
+
+> [!WARNING]
+> **The refresh token is a credential.** It gives software the read access
+> of your Home Connect account: appliance names, state, and program
+> details. It cannot start or stop programs, because the exporter requests
+> read-only scopes. Keep the token in an encrypted secret. Do not put it
+> in git, logs, or screenshots. If it leaks, remove the application's
+> access in the Home Connect portal and run `hce authorize` again.
+
+> [!IMPORTANT]
+> **Unofficial project.** This is a personal, free-time project, built on
+> the author's own title and in his own time. It is not made, endorsed,
+> sponsored, or supported by BSH Hausgeräte GmbH, Robert Bosch GmbH, or
+> Siemens AG. The author works for Siemens Digital Industries Software.
+> Siemens household appliances come from BSH Hausgeräte GmbH. That company
+> is separate from the author's employer. See
+> [Disclaimer & trademarks](#disclaimer--trademarks).
+
+`hce` keeps one Server-Sent Events stream open per appliance and serves the appliance state on `/metrics`.
 
 ## How it works
 
@@ -69,3 +94,29 @@ scrape_configs:
 ## Verify a release image
 
 See [docs/verifying-releases.md](docs/verifying-releases.md).
+
+## Disclaimer & trademarks
+
+**This is an independent, unofficial project.** It is not made, endorsed,
+sponsored, authorized, or supported by BSH Hausgeräte GmbH, Robert Bosch
+GmbH, or Siemens AG. None of them has any affiliation with it.
+
+**Personal work.** The author works for Siemens Digital Industries
+Software. He built this project on his own title and in his own time. His
+employer has no part in it. His employer did not authorize it, endorse
+it, or support it. Siemens household appliances come from BSH Hausgeräte
+GmbH. That company is separate from the author's employer.
+
+**Trademarks.** Siemens, Bosch, and Home Connect are trademarks or
+registered trademarks of their owners. This README uses them only to
+identify the appliances and the service this software works with. That
+use does not imply any affiliation or endorsement. This project does not
+use any brand logo.
+
+**No support.** BSH does not support this software. Do not contact BSH
+customer service about it. Open an issue in this repository instead.
+
+**Use at your own risk.** The exporter only reads data, and its access
+token requests read-only scopes. Home Connect is a cloud service that
+BSH can change, rate-limit, or block at any time. The software comes
+without any warranty. See [LICENSE](LICENSE).
