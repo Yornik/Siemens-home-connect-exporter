@@ -231,6 +231,12 @@ pub async fn authorize(
     // Bind before printing so the printed URL is guaranteed to answer.
     let listener = tokio::net::TcpListener::bind(listen).await?;
     let url = authorize_url(&config.api_base, &config.client_id, &redirect_uri);
+    // The portal application must carry exactly this redirect URI, or the
+    // authorize page rejects the request before any login happens.
+    tracing::info!(
+        redirect_uri = %redirect_uri,
+        "register this redirect URI on your Home Connect application"
+    );
     // tracing rather than stdout: the exporter often runs headless.
     tracing::info!(url = %url, "open this URL in a browser to authorize the exporter");
 

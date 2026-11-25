@@ -65,12 +65,41 @@ All configuration is environment variables.
 
 ## Onboard
 
+The authorize flow runs once. Run it on the machine where your browser
+runs, because the redirect returns to that machine's loopback.
+
 1. Create a developer account at `developer.home-connect.com`.
-2. Register an application. Select the authorization code grant.
-3. Set `HCE_CLIENT_ID` and `HCE_CLIENT_SECRET` from that application.
-4. Run `hce authorize`. It prints one URL and waits.
-5. Open the URL. Log in with your Home Connect account. Approve the access.
-6. The command prints the refresh token. Set it as `HCE_REFRESH_TOKEN`.
+2. Register an application with these values.
+   - **Application ID**: any name, for example `hce`. The portal uses it
+     as the client id.
+   - **OAuth Flow**: `Authorization Code Grant Flow`. The portal cannot
+     change this value later.
+   - **Home Connect User Account for Testing**: leave it empty. The portal
+     then uses the account from your profile, with your real appliances.
+   - **Redirect URI**: `http://127.0.0.1:7878/auth`. The exporter builds
+     it from its listener address, and the portal must match it exactly.
+   - **Enable One Time Token Mode**: leave it off. This mode revokes every
+     token when a refresh token is reused, and the exporter reuses its
+     refresh token.
+   - **Sync to China**: leave it off.
+   - **EU Data Act raw data**: leave it off. The exporter does not read
+     those events.
+3. Save the application. The portal shows its client secret. Set
+   `HCE_CLIENT_ID` and `HCE_CLIENT_SECRET` from the application.
+4. Run the command:
+
+```console
+docker run --rm -it --network host \
+  -e HCE_CLIENT_ID=... -e HCE_CLIENT_SECRET=*** \
+  ghcr.io/yornik/siemens-home-connect-exporter:latest authorize
+```
+
+With a local binary, run `hce authorize` instead. `--network host` puts
+the listener on your machine's loopback, so the redirect arrives.
+
+5. The command prints the redirect URI, then one URL. It waits.
+6. Open the URL. Log in with your Home Connect account. Approve the access.
+7. The command prints the refresh token. Set it as `HCE_REFRESH_TOKEN`.
 
 The exporter requests the scopes `IdentifyAppliance` and `Monitor`. It
 cannot start or stop programs.
@@ -90,6 +119,39 @@ scrape_configs:
     static_configs:
       - targets: ["hce.home:9780"]
 ```
+
+## Test with simulated appliances
+
+BSH provides a simulator API. It serves fake appliances. A test run needs
+no real appliance and no real credential for it.
+
+1. Add a simulated appliance in the developer portal. It pairs to your
+   account like a real one.
+2. Run the authorize flow with the simulator base:
+
+```console
+docker run --rm -it --network host \
+  -e HCE_CLIENT_ID=... -e HCE_CLIENT_SECRET=*** \
+  -e HCE_API_BASE=https://simulator.home-connect.com \
+  ghcr.io/yornik/siemens-home-connect-exporter:latest authorize
+```
+
+3. Run the exporter with the same base:
+
+```console
+docker run --rm \
+  -e HCE_CLIENT_ID=... -e HCE_CLIENT_SECRET=*** -e HCE_REFRESH_TOKEN=*** \
+  -e HCE_API_BASE=https://simulator.home-connect.com \
+  -p 9780:9780 ghcr.io/yornik/siemens-home-connect-exporter:latest
+```
+
+4. Scrape `http://localhost:9780/metrics`. Start a program in the
+   simulator. Watch the state, progress, and program-event metrics move.
+
+The same client id and secret work for the simulator. The simulator keeps
+its own tokens, so authorize once per base: production and simulator each
+get their own refresh token. The exporter sends every request to the
+configured base, so no other setting changes.
 
 ## Verify a release image
 
