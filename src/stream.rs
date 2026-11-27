@@ -108,6 +108,36 @@ async fn once(
         warn!(appliance = %label, "daily budget spent; skipping snapshot");
     }
 
+    // Seed the connected gauge from the appliance list. The SSE events only
+    // carry *transitions*: when a stream reopens while the appliance is
+    // already reconnected, no Connected event ever arrives and the gauge
+    // would stay stuck on its pre-drop value until the next flap.
+    if budget.take() {
+        metrics.count_api_request("appliance-list");
+        match api::list_appliances(client, &config.api_base, &token).await {
+            Ok(list) => {
+                if let Some(connected) = find_connected(&list, &appliance.ha_id) {
+                    metrics.set_connected(label, connected);
+                } else {
+                    debug!(
+                        appliance = %label,
+                        "appliance missing from the account list; leaving connected untouched"
+                    );
+                }
+            }
+            Err(err) => {
+                metrics.count_api_error("appliance-list");
+                debug!(
+                    appliance = %label,
+                    error = %err,
+                    "appliance list failed; leaving connected untouched"
+                );
+            }
+        }
+    } else {
+        warn!(appliance = %label, "daily budget spent; skipping connected seed");
+    }
+
     if !budget.take() {
         // No fresh stream without budget: retry later through the loop.
         return Err(Error::Api {
@@ -201,6 +231,14 @@ fn apply_items(metrics: &Metrics, label: &str, items: &[EventItem]) {
     }
 }
 
+/// Finds one appliance's cloud-connection state in the list. `None` when
+/// the account no longer carries that haId.
+fn find_connected(list: &[api::Appliance], ha_id: &str) -> Option<bool> {
+    list.iter()
+        .find(|appliance| appliance.ha_id == ha_id)
+        .map(|appliance| appliance.connected)
+}
+
 /// Converts a status snapshot into event-shaped items so one code path
 /// handles both.
 fn snapshot_items(status: &[StatusItem]) -> Vec<EventItem> {
@@ -226,7 +264,7 @@ pub fn display_name(appliance: &Appliance) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{apply_items, display_name, snapshot_items};
+    use super::{apply_items, display_name, find_connected, snapshot_items};
     use crate::api::Appliance;
     use crate::events::EventItem;
 
@@ -247,6 +285,18 @@ mod tests {
             "SIEMENS-SN678D10TG-AB1234567890"
         );
         assert_eq!(display_name(&appliance("Keuken")), "Keuken");
+    }
+
+    #[test]
+    fn find_connected_matches_by_ha_id_and_reports_the_flag() {
+        let mut online = appliance("Kaffeemaschine fur hai");
+        online.ha_id = "SIEMENS-A".to_owned();
+        online.connected = true;
+        let mut offline = appliance("Hob");
+        offline.ha_id = "SIEMENS-B".to_owned();
+        assert_eq!(find_connected(&[online], "SIEMENS-A"), Some(true));
+        assert_eq!(find_connected(&[offline.clone()], "SIEMENS-B"), Some(false));
+        assert_eq!(find_connected(&[offline], "SIEMENS-A"), None);
     }
 
     #[test]
