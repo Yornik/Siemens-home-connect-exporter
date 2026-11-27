@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/Yornik/Siemens-home-connect-exporter/compare/v0.3.1...v0.3.2) (2026-11-27)
+
+
+### Bug Fixes
+
+* seed the connected gauge from REST on every stream open ([#10](https://github.com/Yornik/Siemens-home-connect-exporter/issues/10)) ([4be0f07](https://github.com/Yornik/Siemens-home-connect-exporter/commit/4be0f07a70a313b3a0873ca9bc57c12ccb07a508))
+
 ## [0.3.1](https://github.com/Yornik/Siemens-home-connect-exporter/compare/v0.3.0...v0.3.1) (2026-11-25)
 
 
